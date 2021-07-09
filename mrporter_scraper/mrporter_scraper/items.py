@@ -24,6 +24,9 @@ class MrporterScraperItem(scrapy.Item):
     SKU = scrapy.Field(output_processor=TakeFirst())
     attributes = scrapy.Field(output_processor=TakeFirst())
     UPC = scrapy.Field(output_processor=TakeFirst())
+    full_price = scrapy.Field(output_processor=TakeFirst())
+    price_with_discount = scrapy.Field(output_processor=TakeFirst())
+
 
 class TextItem(scrapy.Item):
     # define the fields for your item here like:

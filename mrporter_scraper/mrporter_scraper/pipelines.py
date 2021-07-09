@@ -28,7 +28,7 @@ class MongoPipeline(object):
         self.client.close()
 
     def process_item(self, item, spider):
-        found = self.db[self.collection_name].find_one({"SKU": item["SKU"], "product_id": item["product_id"]})
-        if not found:
-            self.db[self.collection_name].insert_one(dict(item))
+        found = self.db[self.collection_name].replace_one({"SKU": item["SKU"], "product_id": item["product_id"]}, dict(item))
+        # if not found:
+        #     self.db[self.collection_name].insert_one(dict(item))
         return item

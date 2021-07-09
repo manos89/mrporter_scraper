@@ -78,6 +78,15 @@ class mrporterSpider(scrapy.Spider):
                     itm["color"] = colour["label"]
                     itm["SKU"] = sku["partNumber"]
                     itm["UPC"] = None
+                    try:
+                        itm["full_price"] = float(sku["price"]["wasPrice"]["amount"]) / float(sku["price"]["wasPrice"]["divisor"])
+                    except:
+                        itm["full_price"] = None
+                    try:
+                        itm["price_with_discount"] = float(sku["price"]["sellingPrice"]["amount"]) / float(sku["price"]["sellingPrice"]["divisor"])
+                    except:
+                        itm["price_with_discount"] = None
+
                     attribute_dict = {}
                     for attribute in sku["attributes"]:
                         if attribute["label"] in self.attribute_labels:
@@ -85,6 +94,4 @@ class mrporterSpider(scrapy.Spider):
                     itm["attributes"] = attribute_dict
                     self.counter += 1
                     yield itm
-        # text_itm = TextItem()
-        # text_itm["text"] = response.body
-        # yield text_itm
+
