@@ -86,6 +86,8 @@ class mrporterSpider(scrapy.Spider):
                         itm["price_with_discount"] = float(sku["price"]["sellingPrice"]["amount"]) / float(sku["price"]["sellingPrice"]["divisor"])
                     except:
                         itm["price_with_discount"] = None
+                    if (itm["price_with_discount"]) and (itm["full_price"] is None):
+                        itm["full_price"] = itm["price_with_discount"]
 
                     attribute_dict = {}
                     for attribute in sku["attributes"]:
