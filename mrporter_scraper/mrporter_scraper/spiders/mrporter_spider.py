@@ -19,15 +19,15 @@ class mrporterSpider(scrapy.Spider):
 
     def parse(self, response):
         designers = response.selector.css("a.DesignerList0__designerName::attr(href)").extract()
-        designers += ["/en-us/mens/sale", "/en-us/mens/list/new-to-sale", "/en-us/mens/list/further-reductions",
+        other_links = ["/en-us/mens/sale", "/en-us/mens/list/new-to-sale", "/en-us/mens/list/further-reductions",
                       "/en-us/mens/whats-new", "/en-us/mens/clothing", "/en-us/mens/shoes", "/en-us/mens/accessories",
                       "/en-us/mens/grooming", "/en-us/mens/luxury-watches", "/en-us/mens/lifestyle", "/en-us/mens/gifts",
                       "/en-us/mens/sport"]
         # yield scrapy.Request("https://www.mrporter.com/en-pt/mens/sale/", callback=self.parse_listing)
         for designer_link in designers:
             yield scrapy.Request("https://www.mrporter.com" + designer_link, callback=self.parse_listing)
-            designer_name = re.findall("designer\/(.*)", designer_link)[0]
-            yield scrapy.Request(self.designer_api_url.format(designer_name), callback=self.parse_listing)
+        for other_link in other_links:
+            yield scrapy.Request("https://www.mrporter.com" + other_link, callback=self.parse_listing)
 
     def parse_listing(self, response):
         products = response.selector.css("a::attr(href)").extract()
