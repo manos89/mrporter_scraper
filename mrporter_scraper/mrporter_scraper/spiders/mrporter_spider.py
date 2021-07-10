@@ -19,21 +19,26 @@ class mrporterSpider(scrapy.Spider):
 
     def parse(self, response):
         designers = response.selector.css("a.DesignerList0__designerName::attr(href)").extract()
-        print(len(designers))
+        designers += ["/en-us/mens/sale", "/en-us/mens/list/new-to-sale", "/en-us/mens/list/further-reductions",
+                      "/en-us/mens/whats-new", "/en-us/mens/clothing", "/en-us/mens/shoes", "/en-us/mens/accessories",
+                      "/en-us/mens/grooming", "/en-us/mens/luxury-watches", "/en-us/mens/lifestyle", "/en-us/mens/gifts",
+                      "/en-us/mens/sport"]
+        # yield scrapy.Request("https://www.mrporter.com/en-pt/mens/sale/", callback=self.parse_listing)
         for designer_link in designers:
             yield scrapy.Request("https://www.mrporter.com" + designer_link, callback=self.parse_listing)
-            # designer_name = re.findall("designer\/(.*)", designer_link)[0]
-            # yield scrapy.Request(self.designer_api_url.format(designer_name), callback=self.parse_listing)
+            designer_name = re.findall("designer\/(.*)", designer_link)[0]
+            yield scrapy.Request(self.designer_api_url.format(designer_name), callback=self.parse_listing)
 
     def parse_listing(self, response):
-        products = response.selector.css("div.ProductGrid52 > a::attr(href)").extract()
-        # yield scrapy.Request("https://www.mrporter.com/en-us/mens/product/mr-p/clothing/winter-coats/checked-brushed-virgin-wool-and-llama-hair-blend-coat/33599693056299663",
+        products = response.selector.css("a::attr(href)").extract()
+        # yield scrapy.Request("https://www.mrporter.com/en-de/mens/product/arc-teryx/sport/outdoor-jackets/atom-sl-nylon-hooded-jacket/2204324140298673",
         #                      callback=self.parse_product_details)
         for product_link in products:
-            yield scrapy.Request("https://www.mrporter.com" + product_link, callback=self.parse_product_details)
+            if "product" in product_link:
+                yield scrapy.Request("https://www.mrporter.com" + product_link, callback=self.parse_product_details)
         next_page = response.selector.css("a.Pagination7__next::attr(href)").extract_first()
         if next_page:
-            if "https://www.mrporter.com" + next_page != response.url:
+            if not response.url.endswith(next_page):
                 yield scrapy.Request("https://www.mrporter.com" + next_page, callback=self.parse_listing)
 
 
@@ -94,6 +99,5 @@ class mrporterSpider(scrapy.Spider):
                         if attribute["label"] in self.attribute_labels:
                             attribute_dict[attribute["label"]] = attribute["values"]
                     itm["attributes"] = attribute_dict
-                    self.counter += 1
                     yield itm
 
